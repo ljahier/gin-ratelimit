@@ -18,11 +18,11 @@ func RateLimitByUserId(tb *TokenBucket, userId string) gin.HandlerFunc {
 	}
 }
 
-func PreventBruteForce(tb *TokenBucket, userId string) gin.HandlerFunc {
+func PreventBruteForce(tb *TokenBucket, userKey string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		ip := ctx.ClientIP()
 		rateLimit(ctx, tb, ip)
-		rateLimit(ctx, tb, userId)
+		rateLimit(ctx, tb, userKey)
 	}
 }
 

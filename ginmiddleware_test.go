@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Function to create a test router with middleware
+// Function to create a ping router with middleware
 func setupRouter(tb *TokenBucket, middleware gin.HandlerFunc) *gin.Engine {
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
@@ -95,6 +95,38 @@ func TestPreventBruteForce(t *testing.T) {
 
 	if w.Code != http.StatusTooManyRequests {
 		t.Errorf("Expected status 429 due to userId limit, got %d", w.Code)
+	}
+}
+
+func TestPreventBruteForce2(t *testing.T) {
+	tb := NewTokenBucket(1, 1*time.Minute) // Allow 1 request per minute per IP and per userId
+	userEmail := "john@doe.com"
+	r := setupRouter(tb, PreventBruteForce(tb, userEmail))
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/ping", nil)
+	req.RemoteAddr = "127.0.0.1:12345" // Set client IP
+
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected status 200, got %d", w.Code)
+	}
+
+	// Second request should be rate limited by IP
+	w = httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusTooManyRequests {
+		t.Errorf("Expected status 429, got %d", w.Code)
+	}
+
+	// Reset recorder and request for user Id rate limit
+	w = httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusTooManyRequests {
+		t.Errorf("Expected status 429 due to userEmail limit, got %d", w.Code)
 	}
 }
 
