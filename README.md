@@ -1,5 +1,7 @@
 # Token Bucket Rate Limiter for Gin-Gonic
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/ljahier/gin-ratelimit.svg)](https://pkg.go.dev/github.com/ljahier/gin-ratelimit)
+
 This library implements a Token Bucket Algorithm-based Rate Limiter designed for easy integration with the Gin-Gonic web framework. It provides an efficient way to control the rate of incoming requests, ensuring your application remains reliable and responsive under varying loads.
 
 ## Features
